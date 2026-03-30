@@ -41,21 +41,27 @@ outputs/ (contains all saved outputs)
 - **JSON output** makes parsing reliable and the schema explicit.
 - **Context-grounding instruction** guards against hallucination.
 - **Abstention as a category** is preferable to a low-confidence answer - in financial QA, a wrong answer can be more damaging than no answer.
-- **Temperature = 0** ensures deterministic outputs.
+- **Temperature = 0** ensures deterministic, reproducible outputs.
 
 **Confidence & Abstention:** Self-reported confidence (0–1) with a threshold of 0.50. If a model answers but with very low confidence, it is reclassified as abstain regardless of its stated answer.
+
+## Assumptions
+- Reference answers in the dataset are treated as ground truth without independent validation.
+- Context provided in each row is assumed to be the correct and complete context for that question.
+- Retry logic is not implemented for API calls, so OpenRouter or another LLM platform uptime is expected.
+- No tool calling, RAG, or MCP logic was used in any of the implemented models.
 
 ## Evaluation Metrics
 | Metric | Reasoning | Limitation |
 |---|---|---|
 | LLM as a Judge | Evaluates factual equivalence vs reference using a stronger LLM | Extra API call overhead per sample |
 | Cosine Similarity | Bag-of-Words overlap; no external dependencies | Penalises paraphrasing and vocabulary shifts |
-| Confidence Calibration | Trustworthiness signal of self-reported scores | Self-reported values are not well calibrated |
+| Mean Confidence | Trustworthiness signal of self-reported scores | Self-reported values are not well calibrated |
 | Abstention Rate | Coverage vs safety trade-off | Does not capture quality of abstentions |
 
 **LLM-as-a-Judge is the primary recommendation metric** as it measures factual equivalence directly, bypassing the vocabulary limitations of Cosine Similarity.
 
-### Evaluation Results
+### Results
 | Metric | gemini-3.1-flash-lite | gpt-5.4-mini | mistral-large-2512 |
 |---|---|---|---|
 | LLM as a Judge | 0.94 | 1.00 | 0.94 |
@@ -63,10 +69,11 @@ outputs/ (contains all saved outputs)
 | Mean Confidence | 1.00 | 0.98 | 0.98 |
 | Abstention Rate | 0.02 | 0.00 | 0.02 |
 
-## Assumptions
-- Reference answers in the dataset are treated as ground truth without independent validation.
-- Context provided in each row is assumed to be the correct and complete context for that question.
-- Retry logic is not implemented for API calls, so OpenRouter or another LLM platform uptime is expected.
+### Model Performance
+- Gemini had the **best average performance overall** and gave the most semantically similar answers.
+- GPT was found to be slightly less verbose in its response, hence the lower Cosine Similarity score.
+- Mistral LLM has the lowest parameter count out of the three but still performs comparatively well.
+- All three LLMs gave **deterministic results** due to structured output schema and strict prompting.
 
 ## Quick Start
 ### Prerequisites
@@ -90,4 +97,5 @@ This will:
 4. Print a comparison table to the console
 5. Save all outputs to `outputs/`
 
-(Optional) Run the Jupyter notebook: Open `notebook.ipynb` and run all cells in order. It produces the same outputs as `main.py` plus visualisation charts saved to `outputs/`.
+### Interactive Pipeline (Optional)
+Open the Jupyter notebook (`notebook.ipynb`) and run all cells in order. It produces the same outputs as `main.py`, but with visualisation charts saved to `outputs/`.
