@@ -1,0 +1,6 @@
+metric,gemini-3.1-flash-lite,gpt-5.4-mini,mistral-large-2512
+n_samples,50,50,50
+llm_as_a_judge,0.94,1.0,0.94
+cosine_sim,0.7697,0.6833,0.7358
+mean_confidence,1.0,0.983,0.98
+abstention_rate,0.02,0.0,0.02
